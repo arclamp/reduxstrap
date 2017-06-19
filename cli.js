@@ -18,41 +18,39 @@ function getVersionString () {
   return versionString;
 }
 
-var dest;
 program.version(getVersionString())
-  .description('Bootstrap a barebones Redux application into a directory')
-  .usage('<target directory>')
-  .option('-f --force', 'Create directory if it doesn\'t exist')
-  .arguments('<directory>')
-  .action(function (dir) {
-    dest = dir;
-  })
+  .description('Bootstrap a barebones Redux application into current directory')
+  .option('-f --force', 'Create directory if it doesn\'t exist / overwrite contents if it does')
   .parse(process.argv);
 
-if (dest === undefined) {
-  program.help();
-}
-
-if (!program.force && !fs.existsSync(dest)) {
-  console.error('Destination path does not exist; create it and try again, or use -f');
-  process.exit(1);
-}
+var dest = process.cwd();
 
 try {
-  fs.copySync(path.resolve(__dirname, 'src'), dest);
+  var options = {
+    overwrite: !!program.force,
+    errorOnExist: true
+  };
+
+  fs.copySync(path.resolve(__dirname, 'src'), path.resolve(dest, 'src'), options);
+  fs.copySync(path.resolve(__dirname, 'webpack.config.js'), path.resolve(dest, 'webpack.config.js'), options);
 } catch (e) {
   switch (e.code) {
     case 'ENOTDIR':
-      console.log('error: ' + dest + ' is not a directory');
+      console.error('error: ' + dest + ' is not a directory');
       break;
 
     case 'EACCES':
     case 'EPERM':
-      console.log('error: insufficient permission');
+      console.error('error: insufficient permission');
+      break;
+
+    case undefined:
+      console.error('error: ' + e.message);
+      console.error('(use -f to force-copy)');
       break;
 
     default:
-      console.error('error: unexpected condition');
+      console.error('error: unexpected condition', e.code);
       console.error(e.message);
   }
 
