@@ -17,10 +17,6 @@ const reducer = (state = initial, action = {}) => {
     case actionType.initial:
       newState = state.set('mode', 1);
       break;
-
-    case actionType.secondary:
-      newState = state.set('mode', 2);
-      break;
   }
 
   return newState;
