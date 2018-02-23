@@ -37,7 +37,7 @@ module.exports = {
   plugins: [
     new HtmlPlugin({
       template: './src/index.template.ejs',
-      title: 'Reduxstrap!',
+      title: 'Reduxstrap',
       chunks: [
         'index'
       ]
